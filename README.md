@@ -65,6 +65,16 @@ List and briefly describe the APIs you are using in your script.
 
 - [DummyAPI](https://dummyapi.io/): Used to fetch user and post data.
 
+  ![users](https://www.linkpicture.com/q/users.jpeg)
+
+- fetch data
+
+  ![posts](https://www.linkpicture.com/q/posts_1.jpeg)
+
+- Book Scrapping Data
+  
+  ![Books](https://www.linkpicture.com/q/books_4.jpeg)  
+
 ## MySQL Integration
 
 Explain how your script connects to and interacts with MySQL.
