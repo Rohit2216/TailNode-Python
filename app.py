@@ -1,56 +1,66 @@
-import requests
-import pymongo
-from decouple import config
 
+from decouple import config  
+import requests  
+import pymysql  
+import json  
+from datetime import datetime 
 
-# Replace these values with your MongoDB connection details
-mongo_uri = config('MONGO_URI')
-database_name = config('DATABASE_NAME')
+# Retrieve environment variables for MySQL connection
 
-# Replace with your actual app ID
-app_id = config('APP_ID')
+host = config('MYSQL_HOST')  # MySQL server address
+user = config('MYSQL_USER')  # MySQL username
+password = config('MYSQL_PASSWORD')  # MySQL password
+database = config('MYSQL_DATABASE')  # MySQL database name
 
-# API URLs
-users_api_url = "https://dummyapi.io/data/v1/user"
-user_posts_api_url = "https://dummyapi.io/data/v1/user/{user_id}/post"
+# Retrieve API key for making requests
+app_id = config('APP_ID')  # API key for authentication
 
-def main():
-    # Establish a connection to MongoDB
-    client = pymongo.MongoClient(mongo_uri)
-    db = client[database_name]
+# API endpoints
+users_api_url = 'https://dummyapi.io/data/v1/user'
+user_posts_api_url = 'https://dummyapi.io/data/v1/user/{user_id}/post'
 
-    # Headers for API requests
-    headers = {
-        "app-id": app_id
-    }
+# Connect to MySQL database
+connection = pymysql.connect(host=host, user=user, password=password, database=database)
 
-    # Fetch users data from the API
-    response = requests.get(users_api_url, headers=headers)
-    users_data = response.json()
+# Function to fetch and save posts data
+def fetch_and_save_posts(user_id):
+    # Define API endpoint for fetching posts data for a specific user
+    api_url = user_posts_api_url.format(user_id=user_id)
+    response = requests.get(api_url, headers={'app-id': app_id})
+    posts_data = response.json()
 
-    # Store users data in the 'users' collection
-    users_collection = db['users']
-    users_collection.insert_many(users_data['data'])
+    # Loop through each post data
+    with connection.cursor() as cursor:
+        for post in posts_data['data']:
+            # Convert tags to JSON string
+            tags_json = json.dumps(post['tags'])
+            # Convert date string to datetime format
+            publish_date = datetime.strptime(post['publishDate'], '%Y-%m-%dT%H:%M:%S.%fZ')
+            # Define SQL query for inserting post data
+            sql = "INSERT INTO posts (id, image, likes, tags, text, publishDate, owner) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+            cursor.execute(sql, (post['id'], post['image'], post['likes'], tags_json, post['text'], publish_date, user_id))
 
-    print("Users data has been successfully fetched and stored in MongoDB.")
+# Fetch users data from the API
+response = requests.get(users_api_url, headers={'app-id': app_id})
+users_data = response.json()
 
-    # Fetch users from the database
-    users = users_collection.find()
+# Insert users data into the 'users' table
+with connection.cursor() as cursor:
+    for user in users_data['data']:
+        sql = "INSERT INTO users (id, title, firstname, lastname, picture) VALUES (%s, %s, %s, %s, %s)"
+        cursor.execute(sql, (user['id'], user['title'], user['firstName'], user['lastName'], user['picture']))
 
-    # Iterate through each user and fetch their posts
-    for user in users:
-        user_id = user['id']
-        user_posts_url = user_posts_api_url.replace("{user_id}", user_id)
+# Retrieve user IDs from the database
+with connection.cursor() as cursor:
+    cursor.execute("SELECT id FROM users")
+    user_ids = [row[0] for row in cursor.fetchall()]
 
-        # Fetch user's posts data from the API
-        response = requests.get(user_posts_url, headers=headers)
-        user_posts_data = response.json()
+# Fetch and save posts for each user
+for user_id in user_ids:
+    fetch_and_save_posts(user_id)
 
-        # Store user's posts data in the 'posts' collection
-        posts_collection = db['posts']
-        posts_collection.insert_many(user_posts_data['data'])
+# Commit and close connection
+connection.commit()
+connection.close()
 
-    print("Users' posts data has been successfully fetched and stored in MongoDB.")
-
-if __name__ == "__main__":
-    main()
+print("Users and posts data inserted into the database.")
