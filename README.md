@@ -1,7 +1,8 @@
-# Project Title
 
-This is the backend API for an E-commerce application. It provides various endpoints for managing products, categories, user authentication, carts, orders, and more.
 
+# TailNode
+
+This is the backend API for an E-commerce application. It provides various endpoints for managing products, categories, user authentication, carts, orders, and more, using MySQL as the database.
 
 ## Table of Contents
 
@@ -11,9 +12,9 @@ This is the backend API for an E-commerce application. It provides various endpo
 - [Usage](#usage)
 - [Configuration](#configuration)
 - [APIs Used](#apis-used)
-- [MongoDB Integration](#mongodb-integration)
+- [MySQL Integration](#mysql-integration)
 - [Scraping and Storing Data](#scraping-and-storing-data)
-- [Closing MongoDB Connection](#closing-mongodb-connection)
+- [Closing MySQL Connection](#closing-mysql-connection)
 - [License](#license)
 
 ## Getting Started
@@ -24,10 +25,10 @@ Explain how to set up and run your Python script. Include details about any prer
 
 List any prerequisites or dependencies that users need to have installed.
 
-```
+
 - Python 3.x
-- MongoDB
-- Required Python packages (e.g., requests, pymongo, decouple, bs4)
+- MySQL
+- Required Python packages (e.g., requests, mysql-connector-python, decouple, bs4)
 ```
 
 ### Installation
@@ -52,9 +53,10 @@ Explain how to configure your script, including any configuration files or envir
 
 ```bash
 # Create a .env file and set the following variables
-MONGO_URI=your_mongo_uri
-DATABASE_NAME=your_database_name
-APP_ID=your_app_id
+MYSQL_HOST=your_mysql_host
+MYSQL_USER=your_mysql_user
+MYSQL_PASSWORD=your_mysql_password
+MYSQL_DATABASE=your_mysql_database
 ```
 
 ## APIs Used
@@ -63,14 +65,16 @@ List and briefly describe the APIs you are using in your script.
 
 - [DummyAPI](https://dummyapi.io/): Used to fetch user and post data.
 
-## MongoDB Integration
+## MySQL Integration
 
-Explain how your script connects to and interacts with MongoDB.
+Explain how your script connects to and interacts with MySQL.
 
 ```python
-# Replace these values with your MongoDB connection details
-mongo_uri = config('MONGO_URI')
-database_name = config('DATABASE_NAME')
+# Replace these values with your MySQL connection details
+mysql_host = config('MYSQL_HOST')
+mysql_user = config('MYSQL_USER')
+mysql_password = config('MYSQL_PASSWORD')
+mysql_database = config('MYSQL_DATABASE')
 ```
 
 ## Scraping and Storing Data
@@ -81,16 +85,16 @@ Explain the scraping and data storage process in your script.
 # Function to scrape and store book data
 def scrape_and_store_books(page_num):
     # ...
-    # Explain how the data is scraped and stored
+    # Explain how the data is scraped and stored in MySQL
 ```
 
-## Closing MongoDB Connection
+## Closing MySQL Connection
 
-Explain how and when the MongoDB connection is closed.
+Explain how and when the MySQL connection is closed.
 
 ```python
-# Close the MongoDB client connection
-client.close()
+# Close the MySQL connection
+connection.close()
 ```
 
 ## License
@@ -99,4 +103,5 @@ State the license under which your project is released (e.g., MIT License, Apach
 
 ---
 
-This README provides a clear and organized overview of your Python script, making it easier for others to understand and use your code. Be sure to update it as needed and include any additional information that is relevant to your project.
+
+```
